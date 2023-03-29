@@ -63,6 +63,7 @@ int main(){
 
     delete ser_addr;
     delete sockfd;
+    delete epfd;
 
     return 0;
 }

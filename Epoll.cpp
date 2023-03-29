@@ -7,7 +7,7 @@ Epoll::Epoll() : epfd(-1), events(nullptr){
     epfd = epoll_create1(0);
     errif(epfd == -1, "epoll create");
     events = new epoll_event[1024];
-    memset(&events, 0, sizeof events * 1024);
+    memset(events, 0, sizeof events * 1024);
 }
 
 Epoll::~Epoll(){
