@@ -9,6 +9,28 @@
 #include "InetAddress.h"
 #include "Socket.h"
 
+void handleReadEvent(int sockfd){
+    char buf[1024];
+    while(true){
+        memset(&buf, 0, sizeof buf);
+        int len = recv(sockfd, buf, sizeof buf, 0);
+        if(len > 0){
+            printf("from fd %d\nget message:%s\n", sockfd, buf);
+        } else if(len == 0){
+            printf("fd %d disconnected\n", sockfd);
+            close(sockfd);
+            break;
+        } else if(len == -1 && errno == EINTR){
+            std::cout<<"continue...";
+            continue; 
+        } else if(len == -1 && ((errno == EAGAIN) || (errno == EWOULDBLOCK))){
+            printf("finish. errno:%d\n", errno);
+            break;
+        }
+    }
+}
+
+
 int main(){
     Socket *sockfd = new Socket();
 
@@ -32,24 +54,7 @@ int main(){
                 cli_sockfd->setnonblocking();
                 epfd->addFd(cli_sockfd->getFd(),EPOLLIN | EPOLLET);
             } else if(events[i].events & EPOLLIN){
-                char buf[1024];
-                while(true){
-                    memset(&buf, 0, sizeof buf);
-                    int len = recv(events[i].data.fd, buf, sizeof buf, 0);
-                    if(len > 0){
-                        printf("from fd %d\nget message:%s\n", events[i].data.fd, buf);
-                    } else if(len == 0){
-                        printf("fd %d disconnected\n", events[i].data.fd);
-                        close(events[i].data.fd);
-                        break;
-                    } else if(len == -1 && errno == EINTR){
-                        std::cout<<"continue...";
-                        continue;
-                    } else if(len == -1 && ((errno == EAGAIN) || (errno == EWOULDBLOCK))){
-                        printf("finish. errno:%d\n", errno);
-                        break;
-                    }
-                }
+                    handleReadEvent(events[i].data.fd);
             } else{
                 std::cout<<"nothing\n";
             }
