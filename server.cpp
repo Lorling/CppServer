@@ -8,6 +8,7 @@
 #include "Epoll.h"
 #include "InetAddress.h"
 #include "Socket.h"
+#include "Channel.h"
 
 void handleReadEvent(int sockfd){
     char buf[1024];
@@ -41,20 +42,23 @@ int main(){
 
     Epoll *epfd = new Epoll();
     sockfd->setnonblocking();
-    epfd->addFd(sockfd->getFd(), EPOLLIN | EPOLLET);
+    Channel * serChannel = new Channel(epfd, sockfd->getFd());
+    serChannel->enableReading();
 
     while(true){
-        std::vector<epoll_event> events = epfd->poll();
-        int nfds = events.size();
+        std::vector<Channel *> Channels = epfd->poll();
+        int nfds = Channels.size();
         for(int i = 0; i < nfds; i++){
-            if(events[i].data.fd == sockfd->getFd()){
+            int chfd = Channels[i]->getFd();
+            if(chfd == sockfd->getFd()){
                 InetAddress *cli_addr = new InetAddress();
                 Socket *cli_sockfd = new Socket(sockfd->accept(cli_addr));
-                printf("new client:%d\nIP:%s Port:%d",cli_sockfd->getFd(), inet_ntoa(cli_addr->addr.sin_addr), ntohs(cli_addr->addr.sin_port));
+                printf("new client:%d\nIP:%s Port:%d\n",cli_sockfd->getFd(), inet_ntoa(cli_addr->addr.sin_addr), ntohs(cli_addr->addr.sin_port));
                 cli_sockfd->setnonblocking();
-                epfd->addFd(cli_sockfd->getFd(),EPOLLIN | EPOLLET);
-            } else if(events[i].events & EPOLLIN){
-                    handleReadEvent(events[i].data.fd);
+                Channel * cliChannel = new Channel(epfd, cli_sockfd->getFd());
+                cliChannel->enableReading();
+            } else if(Channels[i]->getEvents() & EPOLLIN){
+                    handleReadEvent(chfd);
             } else{
                 std::cout<<"nothing\n";
             }
