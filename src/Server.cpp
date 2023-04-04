@@ -5,21 +5,16 @@
 #include <cstring>
 #include <iostream>
 #include <unistd.h>
+#include <functional>
 
-Server::Server(EventLoop * _loop) : loop(_loop){
-    Socket * ser_sock = new Socket();
-    InetAddress *ser_addr = new InetAddress("127.0.0.1",9999);
-    ser_sock->bind(ser_addr);
-    ser_sock->listen();
-    ser_sock->setnonblocking();
-
-    Channel * ser_channel = new Channel(loop, ser_sock->getFd());
-    std::function<void()> cb = std::bind(&Server::newConnection,this, ser_sock);
-    ser_channel->setCallback(cb);
-    ser_channel->enableReading();
+Server::Server(EventLoop * _loop) : loop(_loop), acceptor(nullptr){
+    acceptor = new Acceptor(loop);
+    std::function<void(Socket*)> cb = std::bind(&Server::newConnection,this,std::placeholders::_1);
+    acceptor->setNewConnectionCallback(cb);
 }
 
 Server::~Server(){
+    delete acceptor;
 }
 
 void Server::handleReadEvent(int sockfd){

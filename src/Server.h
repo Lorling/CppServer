@@ -3,10 +3,13 @@
 
 #include "Socket.h"
 #include "EventLoop.h"
+#include "Acceptor.h"
 
+class Acceptor;
 class Server{
 private:
     EventLoop *loop;
+    Acceptor *acceptor;
 public:
     Server(EventLoop *);
     ~Server();
