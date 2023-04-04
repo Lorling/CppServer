@@ -16,7 +16,7 @@ public:
     void addFd(int fd, uint32_t op);
     std::vector<Channel *> poll(int timeout = -1);
 
-    void updateChannel(Channel*);
+    void updateChannel(Channel*);//jiang Channel jia ru dao epoll huozhe gengxin zhuangtai
 };
 
 #endif
