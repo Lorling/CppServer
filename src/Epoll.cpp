@@ -19,13 +19,13 @@ Epoll::~Epoll(){
     delete [] events;
 }
 
-void Epoll::addFd(int fd, uint32_t op){
+/*void Epoll::addFd(int fd, uint32_t op){
     struct epoll_event ev;
     memset(&ev, 0, sizeof ev);
     ev.data.fd = fd;
     ev.events = op;
     errif(epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev) == -1, "epoll add");
-}
+}*/
 
 std::vector<Channel *> Epoll::poll(int timeout){
     std::vector<Channel *> activeChannels;
