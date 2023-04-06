@@ -22,19 +22,20 @@ void Connection::echo(int sockfd){
     while(true){
         memset(&buf,0,sizeof buf);
         int len = recv(sockfd, buf, sizeof buf, 0);
-        if(buf > 0){
-            printf("get message : %s\nfrom : %d\n", buf, sockfd);
+        if(len > 0){
+            buff->append(buf, len);
         }
         else if(len == -1 && errno == EINTR){
             printf("continue\n");
-            break;
+            continue;
         }
         else if(len == -1 && ((errno == EAGAIN) || (errno == EWOULDBLOCK))){
-            printf("finish.errno : %d\n",errno);
+            printf("finish.from client : %d\n",sockfd);
             break;
         }
         else {
             printf("disconnction.\n");
+            deleteConnection();
             break;
         }
     }

@@ -4,7 +4,9 @@
 #include "EventLoop.h"
 #include "Socket.h"
 #include "Channel.h"
+#include "Buffer.h"
 #include <functional>
+#include <cstring>
 
 class Connection{
 private:
@@ -12,6 +14,7 @@ private:
     Socket * sock;
     Channel * channel;
     std::function<void()> deleteConnection;
+    Buffer * buff;
 public:
     Connection(EventLoop*, Socket*);
     ~Connection();
