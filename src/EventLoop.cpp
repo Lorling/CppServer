@@ -15,7 +15,6 @@ void EventLoop::loop(){
         for(auto i : channels){
             i->handleEvent();
         }
-        
     }
 }
 

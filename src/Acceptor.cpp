@@ -14,7 +14,6 @@ Acceptor::Acceptor(EventLoop * _loop) : loop(_loop){
 
 Acceptor::~Acceptor(){
     delete sock;
-    delete addr;
     delete acceptChannel;
 }
 
@@ -23,5 +22,10 @@ void Acceptor::setNewConnectionCallback(std::function<void(Socket*)> _cb){
 }
 
 void Acceptor::acceptConnection(){
+    InetAddress * cli_addr = new InetAddress();
+    Socket * cli_sock = new Socket(sock->accept(cli_addr));
+    printf("new client : %d\nIP : %s Port : %d\n", cli_sock->getFd(), inet_ntoa(cli_addr->getAddr().sin_addr), ntohs(cli_addr->getAddr().sin_port));
+    cli_sock->setnonblocking();
     newConnectionCallback(sock);
+    delete cli_addr;
 }
