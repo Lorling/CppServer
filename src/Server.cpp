@@ -38,13 +38,13 @@ void Server::handleReadEvent(int sockfd){
     }
 }
 
-void Server::newConnection(Socket * ser_sock){
-    InetAddress * cli_addr = new InetAddress;
-    Socket * cli_sock = new Socket(ser_sock->accept(cli_addr));
-    printf("new client : %d\nIP:%s Port:%d\n",cli_sock->getFd(),inet_ntoa(cli_addr->addr.sin_addr), ntohs(cli_addr->addr.sin_port));
-    cli_sock->setnonblocking();
-    Channel * cli_channel = new Channel(loop, cli_sock->getFd());
-    std::function<void()> cb = std::bind(&Server::handleReadEvent, this, cli_sock->getFd());
-    cli_channel->setCallback(cb);
-    cli_channel->enableReading();
+void Server::newConnection(Socket * sock){
+    Connection * con = new Connection(loop,sock);
+    std::function<void()> cb = std::bind(&Server::deleteConnection, this, sock);
+    con->setDeleteConnection(cb);
+    connections[sock->getFd()] = con;
+}
+
+void Server::deleteConnection(Socket * sock){
+    connections.erase(sock->getFd());
 }

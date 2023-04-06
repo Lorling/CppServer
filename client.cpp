@@ -15,7 +15,8 @@ int main(){
 
     InetAddress *cli_addr = new InetAddress("127.0.0.1", 9999);
 
-    if(connect(sockfd->getFd(), (struct sockaddr *)&cli_addr->addr, sizeof cli_addr->addr) == -1){
+    sockaddr_in addr = cli_addr->getAddr();
+    if(connect(sockfd->getFd(), (struct sockaddr *)&addr, sizeof cli_addr->getAddr()) == -1){
         perror("connect");
         exit(1);
     }
