@@ -50,17 +50,34 @@ private:
     std::condition_variable cv;
     bool shutdown;
 public:
-    ThreadPool(int size = 4);//cpu  nember
-    ~ThreadPool();
-    
-    void shut(){
-        //std::cout<<tasks.size();
-        shutdown = true;
+    ThreadPool(int size = 4) : threads(size), shutdown(false){
+        for(auto & i : threads)
+            i = std::thread([this](){
+                std::function<void()> func;
+                bool flag = false;
+                while(!shutdown){
+                    {
+                        std::unique_lock<std::mutex> lock(m_task);
+                        if(tasks.empty())
+                            cv.wait(lock);
+                        flag = tasks.pop(func);
+                    }
+                    if(flag) func();
+                }
+            });
+    }
+
+    ~ThreadPool(){
+        {
+            std::unique_lock<std::mutex> lock(m_task);
+            shutdown = true;
+        }
         cv.notify_all();
         for(auto & i : threads)
             if(i.joinable())
                 i.join();
     }
+    
     template<typename F,typename ...Args>
     auto submit(F && f, Args && ...args) -> std::future<decltype(f(args...))>{
         std::function<decltype(f(args...))()> func = std::bind(std::forward<F>(f),std::forward<Args>(args)...);
