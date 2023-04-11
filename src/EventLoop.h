@@ -1,19 +1,22 @@
 #ifndef __EVENTLOOP__
 #define __EVENTLOOP__
 
-#include "Channel.h"
-#include "Epoll.h"
+#include <functional>
 
+class Epoll;
+class Channel;
+class ThreadPool;
 class EventLoop{
 private:
     Epoll *ep;
-    bool quit;
+    ThreadPool * pool;
 public:
     EventLoop();
     ~EventLoop();
 
     void loop();
     void updateChannel(Channel *);
+    void submitThread(std::function<void()>);
 };
 
 #endif

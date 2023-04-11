@@ -3,6 +3,8 @@
 
 #include <sys/epoll.h>
 #include <functional>
+#include <unistd.h>
+#include "EventLoop.h"
 
 class EventLoop;
 class Channel{
@@ -12,7 +14,9 @@ private:
     uint32_t events;//xi wang jian ting de shi jian
     uint32_t revents;//zheng zai yun xing
     bool inEpoll;
-    std::function<void()> callback;
+    bool useThread;
+    std::function<void()> readCallback;
+    std::function<void()> writeCallback;
 public:
     Channel(EventLoop *_loop,int _fd);
     ~Channel();
@@ -24,10 +28,11 @@ public:
     uint32_t getEvents();
     uint32_t getRevents();
     bool getInEpoll();
-    void setInEpoll();
-
-    void setRevents(uint32_t); 
-    void setCallback(std::function<void()>);
+    void setInEpoll(bool condition = true);
+    void useET();
+    void setRevents(uint32_t _ev);
+    void setReadCallback(std::function<void()> _cb);
+    void setUseThread(bool flag = true);
 };
 
 #endif

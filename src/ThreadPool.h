@@ -17,10 +17,7 @@ private:
     std::mutex m;
 public:
     SafeQueue(){}
-    ~SafeQueue(){
-        delete & q;
-        delete & m;
-    }
+    ~SafeQueue(){}
     bool empty(){
         std::unique_lock<std::mutex> lock(m);
         return q.empty();

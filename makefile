@@ -1,8 +1,10 @@
 server:
-	g++ src/util.cpp client.cpp src/Epoll.cpp src/InetAddress.cpp src/Socket.cpp src/Channel.cpp src/EventLoop.cpp -std=c++11 -o client
-	g++ server.cpp src/*.cpp -std=c++11 -o server
+	g++ client.cpp src/*.cpp -pthread -std=c++11 -o client
+	g++ server.cpp src/*.cpp -pthread -std=c++11 -o server
+thread:
+	g++ ThreadPoolTest.cpp -pthread -std=c++11 -o thread
 test:
-	g++ ThreadPoolTest.cpp -pthread -std=c++11 -o test
+	g++ test.cpp src/*.cpp -pthread -std=c++11 -o test
 clean:
 	rm client
 	rm server
