@@ -4,13 +4,11 @@
 #include "Channel.h"
 #include <vector>
 
-EventLoop::EventLoop() : ep(nullptr), pool(nullptr){
+EventLoop::EventLoop() : ep(nullptr){
     ep = new Epoll();
-    pool = new ThreadPool(1);
 }
 
 EventLoop::~EventLoop(){
-    delete pool;
     delete ep;
 }
 
@@ -24,8 +22,4 @@ void EventLoop::loop(){
 
 void EventLoop::updateChannel(Channel * ch){
     ep->updateChannel(ch);
-}
-
-void EventLoop::submitThread(std::function<void()> func){
-    pool->submit(func);
 }

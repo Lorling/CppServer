@@ -20,8 +20,10 @@ public:
         channel = new Channel(loop, sock->getFd());
         channel->enableReading();
         channel->useET();
-        std::function<void()> cb = std::bind(&Connection::echo, this, sock->getFd());
-        channel->setReadCallback(cb);
+        std::function<void()> cb1 = std::bind(&Connection::echo, this, sock->getFd());
+        //std::function<void()> cb2 = std::bind(&Connection::send, this, sock->getFd());
+        channel->setReadCallback(cb1);
+        //channel->setSendCallback(cb2);
         buff = new Buffer();
     }
     ~Connection(){
@@ -36,7 +38,6 @@ public:
             int len = recv(sockfd, buf, sizeof buf, 0); 
             if(len > 0){ 
                 buff->append(buf, len);
-                //std::cout<<buff->c_str();
             }
             else if(len == -1 && errno == EINTR){
                 printf("continue\n");
@@ -44,6 +45,7 @@ public:
             }
             else if(len == -1 && ((errno == EAGAIN) || (errno == EWOULDBLOCK))){
                 printf("finish.from client : %d\n",sockfd);
+                send(sockfd);
                 buff->clear();
                 break;
             }
@@ -55,6 +57,11 @@ public:
         }
     }
     void setDeleteConnection(std::function<void(int)> _cb) { deleteConnection = _cb;}
+    void send(int sockfd){
+        char buf[buff->size()];
+        strcpy(buf, buff->c_str());
+        ::send(sockfd, buf, sizeof buf, 0);
+    }
 };
 
 #endif

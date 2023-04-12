@@ -7,7 +7,6 @@
 #include <cstring>
 #include "Channel.h"
 #include "util.h"
-#include <iostream>
 
 class Epoll{
 private:
